@@ -1,0 +1,51 @@
+% Read the stego image
+stegoImage = imread('stego_image.png');
+messageImage = imread('message.jpeg')
+
+% Initialize the secret image as an empty matrix
+secretImage = zeros(size(stegoImage));
+
+% Get the dimensions of the stego image
+[row, col] = size(stegoImage);
+
+% Extract the LSB of each pixel in the stego image to reconstruct the secret image
+bitIndex = 1; % Index of the current secret bit to be extracted
+for i = 1:row
+    for j = 1:col
+        % Get the pixel value of the stego image at (i, j)
+        stegoPixel = stegoImage(i, j);
+        
+        % Extract the LSB (secret bit) of the stego pixel
+        secretBit = bitget(stegoPixel, 1);
+        
+        % Store the extracted secret bit in the secret image at the corresponding index
+        secretImage(bitIndex) = secretBit;
+        
+        % Move to the next secret bit
+        bitIndex = bitIndex + 1;
+        
+        % Break the loop if all secret bits have been extracted
+        if bitIndex > numel(secretImage)
+            break;
+        end
+    end
+    
+    % Break the loop if all secret bits have been extracted
+    if bitIndex > numel(secretImage)
+        break;
+    end
+end
+
+% Reshape the secret image to match the size of the original secret image
+secretImage = reshape(secretImage, size(stegoImage));
+
+% Convert the secret image to grayscale if needed
+if size(stegoImage, 3) > 1
+    secretImage = mat2gray(secretImage);
+end
+
+% Display the secret image
+imshow(secretImage);
+subplot(1, 3, 1), imshow(coverImage), title('Cover Image');
+subplot(1, 3, 2), imshow(messageImage), title('Message Image');
+subplot(1, 3, 3), imshow(secretImage), title('Decoded Secret Image');

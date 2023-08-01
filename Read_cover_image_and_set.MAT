@@ -1,0 +1,63 @@
+% Read the cover image and set image
+coverImage = imread('cover.png');
+secretImage = imread('message.jpeg');
+
+% Convert cover image and secret image to grayscale if needed
+if size(coverImage, 3) > 1
+    coverImage = rgb2gray(coverImage);
+end
+
+if size(secretImage, 3) > 1
+    secretImage = rgb2gray(secretImage);
+end
+
+% Resize secret image to match cover image size
+secretImage = imresize(secretImage, size(coverImage));
+
+% Initialize the stego image as the cover image
+stegoImage = coverImage;
+
+% Get the dimensions of the cover image
+[row, col] = size(coverImage);
+
+% Flatten the secret image into a 1D array
+secretArray = secretImage(:);
+
+% Embed the secret image into the cover image using LSB steganography
+bitIndex = 1; % Index of the current secret bit to be embedded
+for i = 1:row
+    for j = 1:col
+        % Get the pixel value of the cover image at (i, j)
+        coverPixel = coverImage(i, j);
+        
+        % Get the bit value of the secret image at the corresponding index
+        secretBit = bitget(secretArray(bitIndex), 1);
+        
+        % Modify the LSB of the cover pixel with the secret bit
+        stegoPixel = bitset(coverPixel, 1, secretBit);
+        
+        % Update the stego image pixel at (i, j)
+        stegoImage(i, j) = stegoPixel;
+        
+        % Move to the next secret bit
+        bitIndex = bitIndex + 1;
+        
+        % Break the loop if all secret bits have been embedded
+        if bitIndex > numel(secretArray)
+            break;
+        end
+    end
+    
+    % Break the loop if all secret bits have been embedded
+    if bitIndex > numel(secretArray)
+        break;
+    end
+end
+
+% Save the stego image
+imwrite(stegoImage, 'stego_image.png');
+
+% Display the cover image, secret image, and stego image
+subplot(1, 3, 1), imshow(coverImage), title('Cover Image');
+subplot(1, 3, 2), imshow(secretImage), title('Secret Image');
+subplot(1, 3, 3), imshow(stegoImage), title('Stego Image');
